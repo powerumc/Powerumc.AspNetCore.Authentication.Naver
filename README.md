@@ -9,6 +9,10 @@
 
 ## 1. Startup.cs 설정
 
+### 네아로 설정
+
+네이버 OAuth(네아로)에서 콜백 URL 을 `/signin-naver` 로 설정하셔야 합니다.
+
 ### ConfigureServices 메서드에서 설정
 
 ```csharp
