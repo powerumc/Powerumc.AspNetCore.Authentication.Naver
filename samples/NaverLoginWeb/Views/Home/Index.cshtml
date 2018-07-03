@@ -3,5 +3,14 @@
 }
 
 <div style="margin-top: 100px; text-align: center;">
-    <a id="btnLoginNaver" asp-controller="Home" asp-action="Login">네이버로 로그인</a>
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <a id="btnLoginNaver" asp-controller="Home" asp-action="LoginNaver">네이버로 로그인</a>
+    }
+    else
+    {
+        <ul>
+            <li>이름: @User.Identity.Name</li>
+        </ul>
+    }
 </div>

@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Powerumc.AspNetCore.Authentication.Naver;
@@ -31,14 +37,30 @@ namespace NaverLoginWeb
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            
+            // 인코딩 설정
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             // 네이버 OAuth 설정
-            services.AddAuthentication("Naver")
-                .AddOAuth<NaverOptions, NaverHandler>("Naver", "Naver", options =>
+            services.AddAuthentication()
+                .AddOAuth<NaverOptions, NaverHandler>("Naver", options =>
                 {
                     options.ClientId = "5wt6Yq3c6VYJqRlcRagk";
                     options.ClientSecret = "HYC91dEEAc";
                 });
+            
+            // 인증 정보 저장소
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseMySql("");
+            });
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+                {
+                    options.SignIn.RequireConfirmedEmail = false;
+                    options.SignIn.RequireConfirmedPhoneNumber = false;
+                })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -53,10 +75,13 @@ namespace NaverLoginWeb
                 app.UseHsts();
             }
 
+            // 인증 사용 설정
+            app.UseAuthentication();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -64,5 +89,19 @@ namespace NaverLoginWeb
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+    }
+
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    {
+        public ApplicationDbContext(DbContextOptions options) : base(options) { }
+        
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
+    }
+
+    public class ApplicationUser : IdentityUser
+    {
     }
 }

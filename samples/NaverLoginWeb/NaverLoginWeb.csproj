@@ -5,8 +5,14 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.1.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.0-rc1-final" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Powerumc.AspNetCore.Authentication.Naver\Powerumc.AspNetCore.Authentication.Naver.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Text.Encoding.CodePages, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\2.1.0\System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

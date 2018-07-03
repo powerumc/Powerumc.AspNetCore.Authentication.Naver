@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -20,10 +21,10 @@ namespace Powerumc.AspNetCore.Authentication.Naver
         {
         }
         
-        private void AddQueryString<T>(IDictionary<string, string> queryStrings, AuthenticationProperties properties, string name, Func<T, string> formatter, T defaultValue)
+        private static void AddQueryString<T>(IDictionary<string, string> queryStrings, AuthenticationProperties properties, string name, Func<T, string> formatter, T defaultValue)
         {
             string str = null;
-            T parameter = properties.GetParameter<T>(name);
+            var parameter = properties.GetParameter<T>(name);
             if (parameter != null)
             {
                 str = formatter(parameter);
@@ -41,15 +42,26 @@ namespace Powerumc.AspNetCore.Authentication.Naver
 
         private void AddQueryString(IDictionary<string, string> queryStrings, AuthenticationProperties properties, string name, string defaultValue = null)
         {
-            this.AddQueryString<string>(queryStrings, properties, name, (string x) => x, defaultValue);
+            AddQueryString(queryStrings, properties, name, (string x) => x, defaultValue);
+        }
+
+        protected override string BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)
+        {
+            var strs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {"response_type", "code"},
+                {"client_id", base.Options.ClientId},
+                {"redirect_url", redirectUri},
+                {"state", base.Options.StateDataFormat.Protect(properties)}
+            };
+            
+            return QueryHelpers.AddQueryString(base.Options.AuthorizationEndpoint, strs);
         }
 
         protected override async Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity,
             AuthenticationProperties properties, OAuthTokenResponse tokens)
         {
             var str = QueryHelpers.AddQueryString(base.Options.UserInformationEndpoint, "access_token", tokens.AccessToken);
-            
-
             var async = await base.Backchannel.GetAsync(str, base.Context.RequestAborted);
             if (!async.IsSuccessStatusCode)
             {
@@ -58,9 +70,6 @@ namespace Powerumc.AspNetCore.Authentication.Naver
             }
 
             var jObject = JObject.Parse(await async.Content.ReadAsStringAsync());
-            
-            
-            
             var oAuthCreatingTicketContext = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties,
                 base.Context, base.Scheme, base.Options, base.Backchannel, tokens, jObject);
             oAuthCreatingTicketContext.RunClaimActions();
