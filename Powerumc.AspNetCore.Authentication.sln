@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9C24C324-74D1-40EE-84D2-2A7E27E1D84A}"
+ProjectSection(SolutionItems) = preProject
+	README.md = README.md
+EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Powerumc.AspNetCore.Authentication.Naver", "src\Powerumc.AspNetCore.Authentication.Naver\Powerumc.AspNetCore.Authentication.Naver.csproj", "{0FC48AD5-27C0-4B06-863E-D2F787565785}"
 EndProject

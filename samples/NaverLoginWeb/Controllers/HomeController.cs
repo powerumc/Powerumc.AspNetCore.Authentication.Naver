@@ -45,29 +45,44 @@ namespace NaverLoginWeb.Controllers
             if (info == null)
                 return Redirect("/");
             
+            // 사용자 정보 설정 
             var user = new ApplicationUser
             {
-                UserName = "powerumc",
-                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = info.Principal.FindFirstValue(ClaimTypes.Email),
                 EmailConfirmed = false,
                 PhoneNumberConfirmed = false
             };
-            var addLoginResult = await _userManager.AddLoginAsync(user, info);
-            if (!addLoginResult.Succeeded)
+
+            var findByName = await _userManager.FindByNameAsync(user.UserName);
+            if (findByName == null)
             {
-                var errors = addLoginResult.Errors.Select(o => o.Description);
-                throw new Exception("AddLoginAsync failed: " + string.Join("<br/>", errors));
+                // 외부 인증이 완료되면 사용자 생성
+                var createResult =  await _userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                {
+                    var errors = createResult.Errors.Select(o => o.Description);
+                    throw new Exception("CreateAsync failed: " + string.Join("<br/>", errors));
+                }
+                
+                // 사용자가 로그인 생성
+                var addLoginResult = await _userManager.AddLoginAsync(user, info);
+                if (!addLoginResult.Succeeded)
+                {
+                    var errors = addLoginResult.Errors.Select(o => o.Description);
+                    throw new Exception("AddLoginAsync failed: " + string.Join("<br/>", errors));
+                }
             }
 
-            var result =
+            // 외부 사용자 인증
+            var signInResult =
                 await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true);
 
-            if (result.Succeeded)
+            if (signInResult.Succeeded)
             {
                 return Redirect(returnUrl);
             }
 
-            if (result.IsLockedOut)
+            if (signInResult.IsLockedOut)
             {
                 throw new Exception("LockedOut");
             }

@@ -43,17 +43,14 @@ namespace NaverLoginWeb
 
             // 네이버 OAuth 설정
             services.AddAuthentication()
-                .AddOAuth<NaverOptions, NaverHandler>("Naver", options =>
+                .AddNaver(options =>
                 {
-                    options.ClientId = "5wt6Yq3c6VYJqRlcRagk";
-                    options.ClientSecret = "HYC91dEEAc";
+                    options.ClientId = "네아로 ClientId";
+                    options.ClientSecret = "네아로 ClientSecret";
                 });
             
             // 인증 정보 저장소
-            services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                options.UseMySql("");
-            });
+            services.AddDbContext<ApplicationDbContext>(options => { options.UseInMemoryDatabase("db"); });
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
                     options.SignIn.RequireConfirmedEmail = false;
