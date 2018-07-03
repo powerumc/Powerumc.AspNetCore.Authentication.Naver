@@ -2,6 +2,17 @@
 
 네이버로 OAuth 로그인(네아로)에 필요한 모듈과 샘플 웹 응용 프로그램을 제공합니다.
 
+## 사용방법
+Nuget 에서 Naver 로 검색해서 참조를 추가해 주세요.
+
+```
+Install-Package Powerumc.AspNetCore.Authentication.Naver -Version 2.1.0
+```
+
+```
+dotnet add package Powerumc.AspNetCore.Authentication.Naver --version 2.1.0
+```
+
 ## 제한사항
 1. .NET Core = 2.1.0 버전을 지원합니다.
 2. 본 예제는 In-Memory 데이터베이스를 사용합니다.
